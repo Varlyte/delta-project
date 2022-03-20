@@ -24,7 +24,7 @@ public class Category {
     @Column(name = "category_id")
     private Long id;
 
-    @Column(name = "categoryname")
+    @Column(name = "category_name")
     private String name;
 
     @ManyToMany(fetch = FetchType.LAZY, // performance
