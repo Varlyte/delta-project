@@ -26,12 +26,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	private JwtTokenFilter jwtTokenFilter;
 	
 	@Override
-	public void configure(WebSecurity web) throws Exception {
-		web
+	public void configure(HttpSecurity http) throws Exception {
+		/*web
 				.ignoring()
-				.antMatchers("/h2-console/**");
+				.antMatchers("/h2-console/**");*/
 		
-		/*http.cors().and().csrf().disable();
+		http.cors().and().csrf().disable();
 		
 		http = http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
 		
@@ -40,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/api/private/**").hasRole("USER")
 			.anyRequest().authenticated();
 		
-		http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);*/
+		http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 	}
 	
 	@Override
