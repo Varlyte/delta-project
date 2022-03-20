@@ -45,7 +45,7 @@ public class ArticleController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Article> getProduct(@PathVariable("id") Long id) {
+    public ResponseEntity<Article> getArticles(@PathVariable("id") Long id) {
         try {
             Article a =  articleService.getArticle(id);
             return new  ResponseEntity<Article>(a, HttpStatus.OK);
@@ -67,7 +67,7 @@ public class ArticleController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Article> createProduct(@RequestBody Article article) {
+    public ResponseEntity<Article> createArticle(@RequestBody Article article) {
         try {
             Article a =  articleService.Create(article);
             return new ResponseEntity<>(a, HttpStatus.OK);
