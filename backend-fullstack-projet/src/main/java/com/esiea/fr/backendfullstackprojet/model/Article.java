@@ -12,7 +12,7 @@ public class Article {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String author_name;
+    private String author_name, name;
     private Long date;
     private String contenu;
     @JsonIgnore
@@ -35,13 +35,9 @@ public class Article {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() {return name;}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public void setName(String name) {this.name = name;}
 
     public String getAuthor_name() {
         return author_name;

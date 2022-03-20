@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS articles;
+DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS category_article;
 CREATE TABLE products (
@@ -15,3 +15,11 @@ CREATE TABLE categories (
 CREATE TABLE category_article (
     category_id BIGINT NOT NULL,
     article_id BIGINT NOT NULL
+);
+
+DROP TABLE IF EXISTS users;
+CREATE TABLE users (
+	id BIGINT AUTO_INCREMENT PRIMARY KEY,
+	username VARCHAR(256) NOT NULL,
+	password VARCHAR(256) NOT NULL
+);
