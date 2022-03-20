@@ -8,9 +8,8 @@ export default function Header(props) {
 
 	return (
 		<header className='App-header'>
-			<p>ESIEA INTECH | Fullstack project</p>
+			<p>ESIEA INTECH | Fullstack project | developpé par MAITROT Maxime et MARI Lucas </p>
 			<nav>
-				{/* { props.toLogout && <NavLink to='/' onClick={deleteToken}>Log out</NavLink> } */}
 				<NavLink to='/' onClick={deleteToken}>Log out</NavLink>
 			</nav>
 		</header>

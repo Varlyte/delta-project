@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
 import { useState } from 'react';
 
-import "../components/newProduct.css"
+import "../components/newArticle.css"
 
 export default function InputLog() {
 	

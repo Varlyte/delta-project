@@ -1,125 +1,148 @@
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 
-import Products from '../components/Products';
-import NewProduct from '../components/NewProduct';
+import Articles from '../components/Articles';
+import NewArticle from '../components/NewArticle';
 
-import '../components/newProduct.css'
+import Categories from '../components/Categories';
+
+import '../App.css';
+import '../components/articles.css';
+import "../components/newArticle.css";
 
 export default function Home() {
 
 	// useState is used to save data
-	const [allProducts, setAllProducts] = useState([]);
-
-	const [newProduct, setNewProduct] = useState({
-	  name: '',
-	  description: '',
-	  cost: 0,
-	  categories: []
+	const token = sessionStorage.getItem('token') || '';
+	const [allArticles, setAllArticles] = useState([]);
+	const [allCategories, setAllCategories] = useState([]);
+  
+	const [newArticle, setNewArticle] = useState({
+	  id: 0,
+	  title: "",
+	  author: "",
+	  date: "",
+	  category: "jeux-videos",
+	  categories: [],
+	  content: ""
 	});
   
-	const [posting, setPosting] = useState(false);
 	const [toDelete, setToDelete] = useState({deleting: false});
-	const [invalidInput, setInvalidInput] = useState(false);
-
-	const token = sessionStorage.getItem('token') || '';
-
-	// initialize invalid input state to false
-	function triggerInvalidInput(message) {
-	  setInvalidInput(message[0].toUpperCase() + message.substring(1));
-	  setTimeout( () => {
-		setInvalidInput(false);
-	  },3000);
-	}
+	const [posting, setPosting] = useState(false);
+	const [inputInvalid, setInputInvalid] = useState(false);
   
-	// useEffect is used to interact w/ data outside of the react app
-	useEffect( () => {
-		fetch('http://localhost:9000/api/private/product', 
-			{
-				headers: {
-					'Authorization': `Bearer ${token}`,
-					'Accept': '*/*'
-				}
+	const [categorietoShow, setArticlesOfCategoriesToShow] = useState({show: false, categorieId: 0});
+  
+	
+	// fetch articles and categories data from API
+	useEffect(() => {
+		fetch('http://localhost:9000/api/private/articles',
+		{
+			headers: {
+			'Authorization': `Bearer ${token}`,
+			'Accept': '*/*'
 			}
-		).then( (res) => {
-			const result = res.json()
-			return result;
-		}).then( (data) => {
-			setAllProducts(data)
+		}
+		)
+		.then(res => res.json())
+		.then(data => {
+		  setAllArticles(data);
 		})
-		.catch( (error) => console.log(error.toString()));
-	}, [posting, toDelete.deleting]);
+		.catch(e => console.log(e.toString()));
+	
+		fetch('http://localhost:9000/api/private/category',
+		{
+			headers: {
+			'Authorization': `Bearer ${token}`,
+			'Accept': '*/*'
+			}
+		})
+		.then(res => res.json())
+		.then(data => {
+		  setAllCategories(data);
+		})
+		.catch(e => console.log("error"));
+	  }, [posting, toDelete]);
   
-	const placeholderUrl = 'https://via.placeholder.com/200/e9fff4';
-  
-	// check if url uses a secured protocol
 	function validateUrl(url) {
 	  const parsed = new URL(url);
-	  return ['https:', 'http:'].includes(parsed.protocol); 
+	  return ["https:", "http:"].includes(parsed.protocol);
 	}
   
-	// validate inputs and update newProduct state accordingly
-	function handleProductFormModification(event) {
+  
+	// initialize invalidInput state to false to handle error messages
+	function initInvalidInput() {
+	  setInputInvalid(false);
+	}
+  
+	// validate inputs, handle errors messages and update newArticle state
+	function handleChange(event) {
 	  const {type, name, value} = event.target;
   
-	  type === 'number' ? 
+	  type === "number" ?
 		value.match(/^[0-9]+$/) ?
-		  setNewProduct( (prevState) => {
-			setInvalidInput(false);
-			return {
-			  ...prevState,
+		  setNewArticle(prevState => {
+			initInvalidInput();  
+			return {...prevState,
+			  id: allArticles.length + 1,
 			  [name]: Number(value)
 			}
-		  })
-		: 
-		  triggerInvalidInput('Cost must be a number!')
-	  :
-		value.match(/.*[<>/\\].*/) ?
-		  triggerInvalidInput(`${name} field doesn't accept special characters!`)
-		:
-		  value.length > 250 ?
-			triggerInvalidInput('Maximum input length is 250 characters!')
+		  }) 
 		  :
-			setNewProduct( (prevState) => {
-			  setInvalidInput(false);
-			  return {
-				...prevState,
+		  setInputInvalid("Cost must be a positive number")
+		:
+		value.match(/^.*[<>/\\].*$/) ?
+		  setInputInvalid("Only letters, numbers and spaces") 
+		  :
+		  value.length > 255 ?
+			setInputInvalid("Max characters is 255")
+			:
+			setNewArticle(prevState => {
+			  initInvalidInput();
+  
+			  return {...prevState,
+				id: allArticles.length + 1,
 				[name]: value
 			  }
-			})
+			});
 	}
   
-	// trigger submit and send a POST request
-	function handleSubmitProduct() {
+  
+	// triggers submit and send POST request
+	function submitArticle() {
 	  setPosting(true);
 	}
   
 	useEffect( () => {
-	  if (posting) {
-		fetch('http://localhost:9000/api/private/product', 
-			{
-				method: 'POST',
-				headers: {
-					'Accept': 'application/json',
-					'Content-type': 'application/json',
-					'Authorization': `Bearer ${token}`
-				},
-				body: JSON.stringify(newProduct)
-			}
-		)
-		.then( (res) => res.json() )
-		.then( (data) => {
-		  setPosting(false);
-		})
-		.catch( (error) => {
-		  console.log(error.toString());
-		});
-	  }
-	}, [posting]);
+		if (posting) {
+		newArticle.categories.push({name: newArticle.category, categoryId: allCategories.find().categoryId})
+		  fetch('http://localhost:9000/api/private/articles', 
+			  {
+				  method: 'POST',
+				  headers: {
+					  'Accept': 'application/json',
+					  'Content-type': 'application/json',
+					  'Authorization': `Bearer ${token}`
+				  },
+				  body: JSON.stringify(newArticle)
+			  }
+		  )
+		  .then( (res) => res.json() )
+		  .then( (data) => {
+			console.log(data);
+			setPosting(false);
+		  })
+		  .catch( (error) => {
+			console.log(error.toString());
+		  });
+		}
+	  }, [posting, newArticle, allCategories]);
   
-	// trigger deletion and send a DELETE request
-	function handleDeleteProduct(event, id) {
+  
+	// triggers deletion and send DELETE request
+	function deleteArticle(event, id) {
 	  event.stopPropagation();
+  
 	  Swal.fire({
 		title: 'Do you really want to delete this product?',
 		text: 'You won\'t be able to revert this!',
@@ -128,50 +151,74 @@ export default function Home() {
 		cancelButtonColor: '#d33',
 		confirmButtonText: 'Yes, delete it!'
 	  })
-	  .then( (result) => {
+	  .then((result) => {
 		if (result.isConfirmed) {
-		  setToDelete({deleting: true, productId: id});
+		  setToDelete({deleting: true, articleId: id});
+  
 		  Swal.fire(
 			'Deleted!',
-			'The product has been deleted.',
+			'Your file has been deleted.',
 			'success'
-		  );
-		}
+		  )
+		};
 	  });
+	  
 	}
   
-	useEffect( () => {
+	useEffect(() => {
 	  if (toDelete.deleting) {
-		fetch(`http://localhost:9000/api/private/product/${toDelete.productId}`, {
-			method: 'DELETE',
-			headers: {
-				'Authorization': `Bearer ${token}`
+		fetch(`http://localhost:9000/api/private/articles/${toDelete.articleId}`, {
+		  method: "DELETE", 
+		  headers: {
+			'Authorization': `Bearer ${token}`
 			}
 		})
-		.then( () => {
-		  setToDelete( {deleting: false} );
+		.then(() => {
+		  setToDelete({deleting: false});
 		})
-		.catch( (error) => {
-		  console.log(error.toString());
-		});
+		.catch(e => console.log(e.toString()));
 	  }
-	}, [toDelete.deleting]);
-
+	}, [toDelete.deleting])
+	
+	function showCategorie(event, categorieId) {
+	  setArticlesOfCategoriesToShow({show: true, categorieId: categorieId});
+	}
+  
+	useEffect(() => {
+	  if (categorietoShow.show) {
+		fetch(`http://localhost:9000/api/private/articles`)
+		.then(res => res.json())
+		.then(data => {
+		  if (categorietoShow.categorieId !== 0) {
+			setAllArticles(data.filter(article => article.categories.some(category => category.categoryId === categorietoShow.categorieId)))
+		  }
+		  else {
+			setAllArticles(data);
+		  }
+		  setArticlesOfCategoriesToShow({show: false})
+		})
+		.catch(e => console.log(e.toString()));
+	  }
+	});
+	console.log("charging /Home");
 	return (
-		<main>
-			<Products 
-				data={allProducts} 
-				validateUrl={validateUrl} 
-				url={placeholderUrl}
-				handleDelete={handleDeleteProduct}
-			/>
-
-			<NewProduct 
-				newProduct={newProduct}
-				handleModification={handleProductFormModification}
-				handleSubmit={handleSubmitProduct}
-				invalidInput={invalidInput}
-			/>
-      </main>
+	  <div>  
+		<Categories 
+		  data={allCategories}
+		  showCategorie={showCategorie}
+		/>
+		<Articles 
+		  data={allArticles}
+		  deleteArticle={deleteArticle}
+		  validateUrl={validateUrl}
+		/>
+		<NewArticle
+		  data={allCategories}
+		  newArticle={newArticle}
+		  handleChange={handleChange}
+		  submitArticle={submitArticle}
+		  inputInvalid={inputInvalid} 
+		/>
+	  </div>
 	);
 }
