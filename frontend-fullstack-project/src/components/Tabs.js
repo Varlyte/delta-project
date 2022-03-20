@@ -18,31 +18,28 @@ export const Tab = ({ title, onClick, active = false, showCategorie, categorieId
         li.tab-item {
           list-style-type: none;
           padding: 1rem 2rem;
-          background-color: #99aab5;
+          background-color: #464646;
           font-weight: bold;
-          text-transform: uppercase;
-          letter-spacing: 0.1rem;
-          cursor: pointer;
           transition: all 0.5s ease;
         }
         li.tab-item:hover,
         li.tab-item.active {
-          background-color: #7289da;
+          background-color: #B4AAAA;
         }
       `}</style>
     </>
   );
 };
 
-export default function Tabs({ children }) {
-  const [activeTab, setActiveTab] = useState(children[0].props.title);
+export default function Tabs({ child }) {
+  const [activeTab, setActiveTab] = useState(child[0].props.title);
 
   const onClickTabItem = tab => setActiveTab(tab);
   return (
     <>
       <div className="tabs">
         <ul className="tab-list">
-          {children.map(tab => {
+          {child.map(tab => {
             const { title } = tab.props;
 
             return (
@@ -59,7 +56,7 @@ export default function Tabs({ children }) {
         </ul>
 
         <div className="tab-content">
-          {children.map(tab => {
+          {child.map(tab => {
             if (tab.props.title !== activeTab) return undefined;
 
             return tab.props.children;
@@ -91,5 +88,5 @@ Tab.propTypes = {
 };
 
 Tabs.propTypes = {
-  children: PropTypes.instanceOf(Array).isRequired
+  child: PropTypes.instanceOf(Array).isRequired
 };
